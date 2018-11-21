@@ -17,12 +17,7 @@ the package in question. Still, I'm not 100% sure.
 //ReadPowerLimit Reads the MSR_[DOMAIN]_POWER_LIMIT MSR for the given domain
 func ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 
-	msr, err := getDomainMSRs(domain)
-	if err != nil {
-		return RAPLPowerLimit{}, err
-	}
-
-	data, err := gomsr.ReadMSR(0, msr.PowerLimit)
+	data, err := gomsr.ReadMSR(0, domain.msrs.PowerLimit)
 	if err != nil {
 		return RAPLPowerLimit{}, err
 	}
