@@ -50,7 +50,7 @@ func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 	if err != nil {
 		return RAPLPowerLimit{}, err
 	}
-	return parsePowerLimit(data), nil
+	return parsePowerLimit(data, h.units), nil
 }
 
 //ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR

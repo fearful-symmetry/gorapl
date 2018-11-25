@@ -1,9 +1,5 @@
 package gorapl
 
-import (
-	"github.com/fearful-symmetry/gomsr"
-)
-
 //This file contains "one-shot" functions to quickly read from a given MSR without having to manage any kind of stateful objects.
 
 /*
@@ -15,13 +11,13 @@ the package in question. Still, I'm not 100% sure.
 */
 
 //ReadPowerLimit Reads the MSR_[DOMAIN]_POWER_LIMIT MSR for the given domain
-func ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
+// func ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 
-	data, err := gomsr.ReadMSR(0, domain.msrs.PowerLimit)
-	if err != nil {
-		return RAPLPowerLimit{}, err
-	}
+// 	data, err := gomsr.ReadMSR(0, domain.msrs.PowerLimit)
+// 	if err != nil {
+// 		return RAPLPowerLimit{}, err
+// 	}
 
-	return parsePowerLimit(data), nil
+// 	return parsePowerLimit(data), nil
 
-}
+// }

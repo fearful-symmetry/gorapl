@@ -36,10 +36,10 @@ const MSRPowerUnit int64 = 0x606
 
 //PowerLimitSetting specifies a power limit for a given time window
 type PowerLimitSetting struct {
-	PowerLimit      uint64
+	PowerLimit      float64
 	EnableLimit     bool
 	ClampingLimit   bool
-	TimeWindowLimit uint64
+	TimeWindowLimit float64
 }
 
 //RAPLPowerLimit contains the data in the MSR_[DOMAIN]_POWER_LIMIT MSR
@@ -55,9 +55,9 @@ type RAPLPowerLimit struct {
 //RAPLPowerUnit contains the data in the MSR_RAPL_POWER_UNIT MSR
 type RAPLPowerUnit struct {
 	//PowerUnits is a multiplier for power related information in watts
-	PowerUnits uint64
+	PowerUnits float64
 	//EnergyStatusUnits is a multiplier for energy related information in joules
-	EnergyStatusUnits uint64
+	EnergyStatusUnits float64
 	//TimeUnits is a multiplier for time related information in seconds
-	TimeUnits uint64
+	TimeUnits float64
 }
