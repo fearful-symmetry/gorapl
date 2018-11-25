@@ -29,6 +29,9 @@ var PP0 = RAPLDomain{0x4, "PP0", domainMSRs{0x638, 0x639, 0x63a, 0x63a, 0x0}}
 //PP1 is platform-dependant, although it usually referrs to some uncore power plane
 var PP1 = RAPLDomain{0x8, "PP1", domainMSRs{0x640, 0x641, 0x642, 0x0, 0x0}}
 
+//MSRPowerUnit specifies the MSR for the MSR_RAPL_POWER_UNIT register
+const MSRPowerUnit int64 = 0x606
+
 // struct defs
 
 //PowerLimitSetting specifies a power limit for a given time window
@@ -47,4 +50,14 @@ type RAPLPowerLimit struct {
 	Limit1 PowerLimitSetting
 	Limit2 PowerLimitSetting
 	Lock   bool
+}
+
+//RAPLPowerUnit contains the data in the MSR_RAPL_POWER_UNIT MSR
+type RAPLPowerUnit struct {
+	//PowerUnits is a multiplier for power related information in watts
+	PowerUnits uint64
+	//EnergyStatusUnits is a multiplier for energy related information in joules
+	EnergyStatusUnits uint64
+	//TimeUnits is a multiplier for time related information in seconds
+	TimeUnits uint64
 }

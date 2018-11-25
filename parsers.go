@@ -21,3 +21,14 @@ func parsePowerLimit(msr uint64) RAPLPowerLimit {
 
 	return powerLimit
 }
+
+//handle the MSR_RAPL_POWER_UNIT MSR
+func parsePowerUnit(msr uint64) RAPLPowerUnit {
+
+	var powerUnit RAPLPowerUnit
+	powerUnit.PowerUnits = msr & 0xf
+	powerUnit.EnergyStatusUnits = (msr >> 8) & 0x1f
+	powerUnit.TimeUnits = (msr >> 16) & 0xf
+
+	return powerUnit
+}

@@ -45,3 +45,17 @@ func TestParsePowerLimit(t *testing.T) {
 
 	//fmt.Printf("%#v\n", parsedMsr)
 }
+
+func TestParsePowerUnit(t *testing.T) {
+	var msrVal uint64 = 0xa0e03
+	knownParsed := RAPLPowerUnit{
+		PowerUnits:        0x3,
+		EnergyStatusUnits: 0xe,
+		TimeUnits:         0xa,
+	}
+	parsedMSr := parsePowerUnit(msrVal)
+
+	if !reflect.DeepEqual(parsedMSr, knownParsed) {
+		t.Fatalf("struct failed: %#v", parsedMSr)
+	}
+}

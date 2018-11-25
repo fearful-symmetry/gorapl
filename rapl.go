@@ -11,6 +11,7 @@ type RAPLHandler struct {
 	availDomains []RAPLDomain //Available RAPL domains
 	domainMask   uint         //a bitmask to make it easier to find available domains
 	msrDev       gomsr.MSRDev
+	units        RAPLPowerUnit
 }
 
 //NewRAPL returns a new RAPL handler
@@ -28,7 +29,14 @@ func NewRAPL(cpu int) (RAPLHandler, error) {
 		return RAPLHandler{}, err
 	}
 
-	return RAPLHandler{availDomains: domains, domainMask: mask, msrDev: msr}, nil
+	handler := RAPLHandler{availDomains: domains, domainMask: mask, msrDev: msr}
+
+	handler.units, err = handler.ReadPowerUnit()
+	if err != nil {
+		return RAPLHandler{}, err
+	}
+
+	return handler, nil
 }
 
 //ReadPowerLimit returns the MSR_[DOMAIN]_POWER_LIMIT MSR
@@ -44,6 +52,20 @@ func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 	}
 	return parsePowerLimit(data), nil
 }
+
+//ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR
+func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
+
+	data, err := h.msrDev.Read(MSRPowerUnit)
+	if err != nil {
+		return RAPLPowerUnit{}, err
+	}
+
+	return parsePowerUnit(data), nil
+
+}
+
+// helper functions
 
 //Borrowed this from the kernel. Traverse over the Energy Status MSRs to see what RAPL domains are available
 func getAvailableDomains(cpu int) ([]RAPLDomain, uint) {
