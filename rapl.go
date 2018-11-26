@@ -40,6 +40,7 @@ func NewRAPL(cpu int) (RAPLHandler, error) {
 }
 
 //ReadPowerLimit returns the MSR_[DOMAIN]_POWER_LIMIT MSR
+//This MSR defines power limits for the given domain. Every domain has this MSR
 func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 
 	if (domain.mask & h.domainMask) == 0 {
@@ -53,7 +54,26 @@ func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 	return parsePowerLimit(data, h.units), nil
 }
 
+//ReadEnergyStatus returns the MSR_[DOMAIN]_ENERGY_STATUS MSR
+//This MSR is a single 32 bit field that reports the energy usage for the domain.
+//Updated ~1ms. Every domain has this MSR. This is a cumulative register
+func (h RAPLHandler) ReadEnergyStatus(domain RAPLDomain) (float64, error) {
+
+	if (domain.mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	}
+
+	data, err := h.msrDev.Read(domain.msrs.EnergyStatus)
+	if err != nil {
+		return 0, err
+	}
+
+	return float64(data&0xffffffff) * h.units.EnergyStatusUnits, nil
+
+}
+
 //ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR
+//This has no associated domain
 func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
 
 	data, err := h.msrDev.Read(MSRPowerUnit)

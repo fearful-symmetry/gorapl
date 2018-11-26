@@ -36,9 +36,13 @@ const MSRPowerUnit int64 = 0x606
 
 //PowerLimitSetting specifies a power limit for a given time window
 type PowerLimitSetting struct {
-	PowerLimit      float64
-	EnableLimit     bool
-	ClampingLimit   bool
+	//Sets the average power usage limits in Watts
+	PowerLimit float64
+	//Enables or disables the power limit
+	EnableLimit bool
+	//If enabled, this allows RAPL to turn down the processor frequency below what the OS has requested
+	ClampingLimit bool
+	//The time window,in seconds, over which the RAPL limit will be measured
 	TimeWindowLimit float64
 }
 
