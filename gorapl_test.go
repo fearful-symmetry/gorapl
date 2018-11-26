@@ -23,23 +23,23 @@ func TestPowerLimit(t *testing.T) {
 func TestParsePowerLimit(t *testing.T) {
 	var msrVal uint64 = 0x7fd00014ea82
 	knownParsed := RAPLPowerLimit{Limit1: PowerLimitSetting{
-		PowerLimit:      0xc00,
-		EnableLimit:     false,
+		PowerLimit:      3408.25,
+		EnableLimit:     true,
 		ClampingLimit:   false,
-		TimeWindowLimit: 0xa,
+		TimeWindowLimit: 1,
 	},
 		Limit2: PowerLimitSetting{
-			PowerLimit:      0xf00,
+			PowerLimit:      4090,
 			EnableLimit:     false,
 			ClampingLimit:   false,
-			TimeWindowLimit: 0x0,
+			TimeWindowLimit: 0.0009765625,
 		},
 		Lock: false,
 	}
 
 	units := parsePowerUnit(0xa0e03)
 
-	parsedMsr := parsePowerLimit(msrVal, units)
+	parsedMsr := parsePowerLimit(msrVal, units, false)
 	fmt.Printf("%#v\n", parsedMsr)
 	if !reflect.DeepEqual(parsedMsr, knownParsed) {
 		t.Fatalf("struct failed: %#v", parsedMsr)

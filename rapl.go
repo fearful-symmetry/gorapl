@@ -78,6 +78,27 @@ func (h RAPLHandler) ReadEnergyStatus(domain RAPLDomain) (float64, error) {
 
 }
 
+//ReadPolicy returns the MSR_[DOMAIN]_POLICY msr. This constists of a single value.
+//The value is a priority that balances energy between the core and uncore devices. It's only available on the PP0/PP1 domains.
+func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
+
+	if (domain.mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	}
+
+	if domain.msrs.Policy == 0 {
+		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	}
+
+	data, err := h.msrDev.Read(domain.msrs.Policy)
+	if err != nil {
+		return 0, err
+	}
+
+	return data & 0x1f, nil
+
+}
+
 //ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR
 //This has no associated domain
 func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
