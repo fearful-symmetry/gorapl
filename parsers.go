@@ -5,7 +5,7 @@ import "math"
 //parsers for turning the raw MSR uint into a struct
 
 //Handle the MSR_[DOMAIN]_POWER_LIMIT MSR
-func parsePowerLimit(msr uint64, units RAPLPowerUnit) RAPLPowerLimit {
+func parsePowerLimit(msr uint64, units RAPLPowerUnit, singleLimit bool) RAPLPowerLimit {
 
 	var powerLimit RAPLPowerLimit
 
@@ -14,6 +14,11 @@ func parsePowerLimit(msr uint64, units RAPLPowerUnit) RAPLPowerLimit {
 	powerLimit.Limit1.ClampingLimit = ((msr >> 16) & 1) == 1
 	powerLimit.Limit1.TimeWindowLimit = parseTimeWindowLimit((msr>>17)&0x7f, units.TimeUnits)
 
+	if singleLimit {
+		powerLimit.Lock = ((msr >> 32) & 1) == 1
+		return powerLimit
+
+	}
 	powerLimit.Limit2.PowerLimit = float64((msr>>32)&0x7fff) * units.PowerUnits
 	powerLimit.Limit2.EnableLimit = ((msr >> 47) & 1) == 1
 	powerLimit.Limit2.ClampingLimit = ((msr >> 48) & 1) == 1

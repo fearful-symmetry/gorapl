@@ -51,7 +51,13 @@ func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 	if err != nil {
 		return RAPLPowerLimit{}, err
 	}
-	return parsePowerLimit(data, h.units), nil
+
+	var singleLimit = false
+	if domain != Package {
+		singleLimit = true
+	}
+
+	return parsePowerLimit(data, h.units, singleLimit), nil
 }
 
 //ReadEnergyStatus returns the MSR_[DOMAIN]_ENERGY_STATUS MSR
