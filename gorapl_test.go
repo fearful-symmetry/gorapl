@@ -61,3 +61,22 @@ func TestParsePowerUnit(t *testing.T) {
 		t.Fatalf("struct failed: %#v", parsedMSr)
 	}
 }
+
+func TestParsePowerInfo(t *testing.T) {
+	var msrVal uint64 = 0x2a0
+	knownParsed := RAPLPowerInfo{
+		ThermalSpecPower: 84,
+		MinPower:         0x0,
+		MaxPower:         0x0,
+	}
+	units := RAPLPowerUnit{
+		PowerUnits:        0.125,
+		EnergyStatusUnits: 6.103515625e-05,
+		TimeUnits:         0.0009765625,
+	}
+	parsedMSr := parsePowerInfo(msrVal, units)
+	//fmt.Printf("%#v\n", parsedMSr)
+	if !reflect.DeepEqual(parsedMSr, knownParsed) {
+		t.Fatalf("struct failed: %#v", parsedMSr)
+	}
+}

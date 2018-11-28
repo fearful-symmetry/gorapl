@@ -57,3 +57,14 @@ func parsePowerUnit(msr uint64) RAPLPowerUnit {
 
 	return powerUnit
 }
+
+func parsePowerInfo(msr uint64, units RAPLPowerUnit) RAPLPowerInfo {
+
+	var powerInfo RAPLPowerInfo
+	powerInfo.ThermalSpecPower = float64(msr&0x7fff) * units.PowerUnits
+	powerInfo.MinPower = float64((msr>>16)&0x7fff) * units.PowerUnits
+	powerInfo.MaxPower = float64((msr>>32)&0x7fff) * units.PowerUnits
+	powerInfo.MaxTimeWindow = float64((msr>>48)&0x3f) * units.TimeUnits
+
+	return powerInfo
+}

@@ -99,6 +99,45 @@ func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
 
 }
 
+//ReadPerfStatus returns the MSR_[DOMAIN]_PERF_STATUS msr. This is a single value.
+//The value is the amount of time that the domain has been throttled due to RAPL limits. This is not available on PP1.
+func (h RAPLHandler) ReadPerfStatus(domain RAPLDomain) (float64, error) {
+
+	if (domain.mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	}
+
+	if domain.msrs.PerfStatus == 0 {
+		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	}
+
+	data, err := h.msrDev.Read(domain.msrs.PerfStatus)
+	if err != nil {
+		return 0, err
+	}
+
+	return float64(data&0xffffffff) * h.units.TimeUnits, nil
+}
+
+//ReadPowerInfo returns the MSR_[DOMAIN]_POWER_INFO MSR. This MSR is not available on PP0/PP1
+func (h RAPLHandler) ReadPowerInfo(domain RAPLDomain) (RAPLPowerInfo, error) {
+
+	if (domain.mask & h.domainMask) == 0 {
+		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	}
+
+	if domain.msrs.PerfStatus == 0 {
+		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	}
+
+	data, err := h.msrDev.Read(domain.msrs.PowerInfo)
+	if err != nil {
+		return RAPLPowerInfo{}, err
+	}
+
+	return parsePowerInfo(data, h.units), nil
+}
+
 //ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR
 //This has no associated domain
 func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {

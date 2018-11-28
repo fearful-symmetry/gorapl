@@ -65,3 +65,11 @@ type RAPLPowerUnit struct {
 	//TimeUnits is a multiplier for time related information in seconds
 	TimeUnits float64
 }
+
+//RAPLPowerInfo contains the data from the MSR_[DOMAIN]_POWER_INFO MSR
+type RAPLPowerInfo struct {
+	ThermalSpecPower float64
+	MinPower         float64
+	MaxPower         float64
+	MaxTimeWindow    float64
+}
