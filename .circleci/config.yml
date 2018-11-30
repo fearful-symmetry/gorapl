@@ -33,7 +33,7 @@ jobs:
             golint ./
       - run:
           name: gofmt
-          command: test -z $(gofmt -s -l \*.go)
+          command: test -z $(gofmt -s -l *.go)
   test:
     environment:
       - GO11MODULES: ON
