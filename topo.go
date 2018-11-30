@@ -1,6 +1,6 @@
 package gorapl
 
-//this file represents my attemps at algos for uncovering the toplogy of the system we're running on, with respect to the physical CPU packages
+//this file represents my attempts at algos for uncovering the toplogy of the system we're running on, with respect to the physical CPU packages
 //We have a problem: if we're running on a box with more than one physical CPU, we need to figure out what /dev/cpu/$cpu/msr device to access
 //So we need to map logical CPUs to physical sockets
 

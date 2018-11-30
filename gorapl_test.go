@@ -6,19 +6,19 @@ import (
 	"testing"
 )
 
-func TestPowerLimit(t *testing.T) {
+// func TestPowerLimit(t *testing.T) {
 
-	h, err := NewRAPL(0)
-	if err != nil {
-		t.Fatalf("Could not init: %s", err)
-	}
-	dat, err := h.ReadPowerLimit(DRAM)
-	if err != nil {
-		t.Fatalf("Could not read MSR: %s", err)
-	}
-	fmt.Printf("Got back: %#v\n", dat)
+// 	h, err := NewRAPL(0)
+// 	if err != nil {
+// 		t.Fatalf("Could not init: %s", err)
+// 	}
+// 	dat, err := h.ReadPowerLimit(DRAM)
+// 	if err != nil {
+// 		t.Fatalf("Could not read MSR: %s", err)
+// 	}
+// 	fmt.Printf("Got back: %#v\n", dat)
 
-}
+// }
 
 func TestParsePowerLimit(t *testing.T) {
 	var msrVal uint64 = 0x7fd00014ea82
