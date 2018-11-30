@@ -1,6 +1,6 @@
 # goRAPL
 
-[![GoDoc](https://godoc.org/github.com/fearful-symmetry/gorapl?status.svg)](https://godoc.org/github.com/fearful-symmetry/gorapl)  [![Go Report Card](https://goreportcard.com/badge/github.com/fearful-symmetry/gorapl)](https://goreportcard.com/report/github.com/fearful-symmetry/gorapl)
+[![GoDoc](https://godoc.org/github.com/fearful-symmetry/gorapl?status.svg)](https://godoc.org/github.com/fearful-symmetry/gorapl)  [![Go Report Card](https://goreportcard.com/badge/github.com/fearful-symmetry/gorapl)](https://goreportcard.com/report/github.com/fearful-symmetry/gorapl) [![CircleCI](https://circleci.com/gh/fearful-symmetry/gorapl.svg?style=svg)](https://circleci.com/gh/fearful-symmetry/gorapl)
 
 A dead-simple, low-level API for accessing the Intel [RAPL API](https://www.phoronix.com/scan.php?page=news_item&px=MTcxMjY).
 
