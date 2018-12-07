@@ -14,9 +14,14 @@ type RAPLHandler struct {
 	units        RAPLPowerUnit
 }
 
-//NewRAPL returns a new RAPL handler
-func NewRAPL(cpu int) (RAPLHandler, error) {
+//RAPLOptions is used to set options for a new RAPLHandler
+type RAPLOptions struct {
+	FmtPattern string
+	CPU        int
+}
 
+//Internal function for creating a new handler
+func createNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 	//TODO: eventually we'll need to handle multiple CPU packages
 
 	domains, mask := getAvailableDomains(cpu)
@@ -24,9 +29,18 @@ func NewRAPL(cpu int) (RAPLHandler, error) {
 		return RAPLHandler{}, fmt.Errorf("No RAPL domains available on CPU")
 	}
 
-	msr, err := gomsr.MSR(cpu)
-	if err != nil {
-		return RAPLHandler{}, err
+	var msr gomsr.MSRDev
+	var err error
+	if fmtS == "" {
+		msr, err = gomsr.MSR(cpu)
+		if err != nil {
+			return RAPLHandler{}, err
+		}
+	} else {
+		msr, err = gomsr.MSRWithLocation(cpu, fmtS)
+		if err != nil {
+			return RAPLHandler{}, err
+		}
 	}
 
 	handler := RAPLHandler{availDomains: domains, domainMask: mask, msrDev: msr}
@@ -37,6 +51,23 @@ func NewRAPL(cpu int) (RAPLHandler, error) {
 	}
 
 	return handler, nil
+}
+
+//NewRAPLWithOptions returns a new handler with the given options.
+//The CPU setting determines the logical processor opened via the given fmt pattern.
+//The default pattern is /dev/cpu/%d/msr_safe.
+func NewRAPLWithOptions(options RAPLOptions) (RAPLHandler, error) {
+
+	return createNewHandler(options.CPU, options.FmtPattern)
+
+}
+
+//NewRAPL returns a new RAPL handler
+func NewRAPL() (RAPLHandler, error) {
+
+	//TODO: eventually we'll need to handle multiple CPU packages
+
+	return createNewHandler(0, "")
 }
 
 //ReadPowerLimit returns the MSR_[DOMAIN]_POWER_LIMIT MSR

@@ -1,14 +1,13 @@
 package gorapl
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
 
 // func TestPowerLimit(t *testing.T) {
 
-// 	h, err := NewRAPL(0)
+// 	h, err := NewRAPLWithOptions(RAPLOptions{})
 // 	if err != nil {
 // 		t.Fatalf("Could not init: %s", err)
 // 	}
@@ -40,7 +39,7 @@ func TestParsePowerLimit(t *testing.T) {
 	units := parsePowerUnit(0xa0e03)
 
 	parsedMsr := parsePowerLimit(msrVal, units, false)
-	fmt.Printf("%#v\n", parsedMsr)
+	//fmt.Printf("%#v\n", parsedMsr)
 	if !reflect.DeepEqual(parsedMsr, knownParsed) {
 		t.Fatalf("struct failed: %#v", parsedMsr)
 	}
