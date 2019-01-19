@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/fearful-symmetry/gorapl?status.svg)](https://godoc.org/github.com/fearful-symmetry/gorapl)  [![Go Report Card](https://goreportcard.com/badge/github.com/fearful-symmetry/gorapl)](https://goreportcard.com/report/github.com/fearful-symmetry/gorapl) [![CircleCI](https://circleci.com/gh/fearful-symmetry/gorapl.svg?style=svg)](https://circleci.com/gh/fearful-symmetry/gorapl)
 
-A dead-simple, low-level API for accessing the Intel [RAPL API](https://www.phoronix.com/scan.php?page=news_item&px=MTcxMjY).
+A dead-simple, low-level API for accessing the Intel [RAPL API](https://www.phoronix.com/scan.php?page=news_item&px=MTcxMjY). Right now it's only capable of reading from MSRs, and may be expanded to write functionality at a later time.
 
 
 ## Install
@@ -30,13 +30,13 @@ Not all Intel CPUs support RAPL. The feature was introduced in Sandy Bridge, and
 ```bash
 $ sudo rdmsr -a 0x611 #rdmsr is part of the msr-tools package on most linuxes
 
-#You can check to see if the kernel picked up an RAPL domains too:
+#You can check to see if the kernel picked up any RAPL domains too:
 
 $ dmesg | grep rapl
 
 ```
 
-Now that' you're ready to go, using `gorapl` is easy:
+Now that you're ready to go, using `gorapl` is easy:
 
 ```go
 
