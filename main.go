@@ -60,19 +60,19 @@ func DumpRAPL() error {
 
 			limit, err := handler.ReadPowerLimit(domain)
 			if err != nil {
-				return errors.Wrap(err, "error reading power Limit")
+				return errors.Wrapf(err, "error reading Power Limit on domain %s", domain.Name)
 			}
-			fmt.Printf("\t\t\t Limit 1: %f Watts; Limit 2: %f Watts; locked: %v\n", limit.Limit1.PowerLimit, limit.Limit2.PowerLimit, limit.Lock)
+			fmt.Printf("\t\t\tLimit 1: %f Watts; Limit 2: %f Watts; locked: %v\n", limit.Limit1.PowerLimit, limit.Limit2.PowerLimit, limit.Lock)
 
 			status, err := handler.ReadEnergyStatus(domain)
 			if err != nil {
-				return errors.Wrap(err, "error reading energy status")
+				return errors.Wrapf(err, "error reading energy status on domain %s", domain.Name)
 			}
 			fmt.Printf("\t\t\tCumulative Power usage: %f Joules\n", status)
 
 			policy, err := handler.ReadPolicy(domain)
 			if err != nil && err != gorapl.ErrMSRDoesNotExist {
-				return errors.Wrap(err, "error reading Policy")
+				return errors.Wrapf(err, "error reading Policy on domain %s", domain.Name)
 			}
 			if err == nil {
 				fmt.Printf("\t\t\tRAPL Policy: %d\n", policy)
@@ -80,10 +80,10 @@ func DumpRAPL() error {
 
 			pwrInfo, err := handler.ReadPowerInfo(domain)
 			if err != nil && err != gorapl.ErrMSRDoesNotExist {
-				return errors.Wrap(err, "error reading PowerInfo")
+				return errors.Wrapf(err, "error reading PowerInfo on domain %s", domain.Name)
 			}
 			if err == nil {
-				fmt.Printf("\t\t\tPower Info: Thermal Spec: %f; Min: %f; Max: %f; Time Window: %f", pwrInfo.ThermalSpecPower, pwrInfo.MinPower, pwrInfo.MaxPower, pwrInfo.MaxTimeWindow)
+				fmt.Printf("\t\t\tPower Info: Thermal Spec: %f; Min: %f; Max: %f; Time Window: %f\n", pwrInfo.ThermalSpecPower, pwrInfo.MinPower, pwrInfo.MaxPower, pwrInfo.MaxTimeWindow)
 			}
 		}
 
