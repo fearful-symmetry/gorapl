@@ -47,7 +47,10 @@ func DumpRAPL() error {
 		if err != nil {
 			return errors.Wrap(err, "error creating handler")
 		}
-		units := handler.GetPowerUnits()
+		units, err := handler.ReadPowerUnit()
+		if err != nil {
+			return errors.Wrap(err, "error reading power units")
+		}
 		fmt.Printf("\tUnits: %f Watts; %f Joules; %f Seconds\n", units.PowerUnits, units.EnergyStatusUnits, units.TimeUnits)
 
 		domains := handler.GetDomains()
@@ -65,7 +68,23 @@ func DumpRAPL() error {
 			if err != nil {
 				return errors.Wrap(err, "error reading energy status")
 			}
-			fmt.Printf("Cumulative Power usage: %f Joules\n", status)
+			fmt.Printf("\t\t\tCumulative Power usage: %f Joules\n", status)
+
+			policy, err := handler.ReadPolicy(domain)
+			if err != nil && err != gorapl.ErrMSRDoesNotExist {
+				return errors.Wrap(err, "error reading Policy")
+			}
+			if err == nil {
+				fmt.Printf("\t\t\tRAPL Policy: %d\n", policy)
+			}
+
+			pwrInfo, err := handler.ReadPowerInfo(domain)
+			if err != nil && err != gorapl.ErrMSRDoesNotExist {
+				return errors.Wrap(err, "error reading PowerInfo")
+			}
+			if err == nil {
+				fmt.Printf("\t\t\tPower Info: Thermal Spec: %f; Min: %f; Max: %f; Time Window: %f", pwrInfo.ThermalSpecPower, pwrInfo.MinPower, pwrInfo.MaxPower, pwrInfo.MaxTimeWindow)
+			}
 		}
 
 	}

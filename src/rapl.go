@@ -1,6 +1,7 @@
 package gorapl
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/fearful-symmetry/gomsr"
@@ -19,6 +20,9 @@ type RAPLOptions struct {
 	FmtPattern string
 	CPU        int
 }
+
+// ErrMSRDoesNotExist is the error for instances when a Domain does not exist on a given RAPL domain
+var ErrMSRDoesNotExist = errors.New("MSR does not exist on selected Domain")
 
 //CreateNewHandler creates a RAPL register handler for the given CPU
 func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
@@ -67,11 +71,6 @@ func NewRAPL() (RAPLHandler, error) {
 	//TODO: eventually we'll need to handle multiple CPU packages
 
 	return CreateNewHandler(0, "")
-}
-
-// GetPowerUnits returns the contents of the MSR_RAPL_POWER_UNIT register
-func (h RAPLHandler) GetPowerUnits() RAPLPowerUnit {
-	return h.units
 }
 
 // GetDomains returns the list of RAPL domains on the package
@@ -127,7 +126,7 @@ func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
 	}
 
 	if domain.MSRs.Policy == 0 {
-		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
+		return 0, ErrMSRDoesNotExist
 	}
 
 	data, err := h.msrDev.Read(domain.MSRs.Policy)
@@ -148,7 +147,7 @@ func (h RAPLHandler) ReadPerfStatus(domain RAPLDomain) (float64, error) {
 	}
 
 	if domain.MSRs.PerfStatus == 0 {
-		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
+		return 0, ErrMSRDoesNotExist
 	}
 
 	data, err := h.msrDev.Read(domain.MSRs.PerfStatus)
@@ -167,7 +166,7 @@ func (h RAPLHandler) ReadPowerInfo(domain RAPLDomain) (RAPLPowerInfo, error) {
 	}
 
 	if domain.MSRs.PerfStatus == 0 {
-		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
+		return RAPLPowerInfo{}, ErrMSRDoesNotExist
 	}
 
 	data, err := h.msrDev.Read(domain.MSRs.PowerInfo)
