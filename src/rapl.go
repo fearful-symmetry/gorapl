@@ -20,9 +20,8 @@ type RAPLOptions struct {
 	CPU        int
 }
 
-//Internal function for creating a new handler
-func createNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
-	//TODO: eventually we'll need to handle multiple CPU packages
+//CreateNewHandler creates a RAPL register handler for the given CPU
+func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 
 	domains, mask := getAvailableDomains(cpu)
 	if len(domains) == 0 {
@@ -58,7 +57,7 @@ func createNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 //The default pattern is /dev/cpu/%d/msr_safe.
 func NewRAPLWithOptions(options RAPLOptions) (RAPLHandler, error) {
 
-	return createNewHandler(options.CPU, options.FmtPattern)
+	return CreateNewHandler(options.CPU, options.FmtPattern)
 
 }
 
@@ -67,18 +66,28 @@ func NewRAPL() (RAPLHandler, error) {
 
 	//TODO: eventually we'll need to handle multiple CPU packages
 
-	return createNewHandler(0, "")
+	return CreateNewHandler(0, "")
+}
+
+// GetPowerUnits returns the contents of the MSR_RAPL_POWER_UNIT register
+func (h RAPLHandler) GetPowerUnits() RAPLPowerUnit {
+	return h.units
+}
+
+// GetDomains returns the list of RAPL domains on the package
+func (h RAPLHandler) GetDomains() []RAPLDomain {
+	return h.availDomains
 }
 
 //ReadPowerLimit returns the MSR_[DOMAIN]_POWER_LIMIT MSR
 //This MSR defines power limits for the given domain. Every domain has this MSR
 func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 
-	if (domain.mask & h.domainMask) == 0 {
-		return RAPLPowerLimit{}, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	if (domain.Mask & h.domainMask) == 0 {
+		return RAPLPowerLimit{}, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
 
-	data, err := h.msrDev.Read(domain.msrs.PowerLimit)
+	data, err := h.msrDev.Read(domain.MSRs.PowerLimit)
 	if err != nil {
 		return RAPLPowerLimit{}, err
 	}
@@ -96,11 +105,11 @@ func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
 //Updated ~1ms. Every domain has this MSR. This is a cumulative register
 func (h RAPLHandler) ReadEnergyStatus(domain RAPLDomain) (float64, error) {
 
-	if (domain.mask & h.domainMask) == 0 {
-		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	if (domain.Mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
 
-	data, err := h.msrDev.Read(domain.msrs.EnergyStatus)
+	data, err := h.msrDev.Read(domain.MSRs.EnergyStatus)
 	if err != nil {
 		return 0, err
 	}
@@ -113,15 +122,15 @@ func (h RAPLHandler) ReadEnergyStatus(domain RAPLDomain) (float64, error) {
 //The value is a priority that balances energy between the core and uncore devices. It's only available on the PP0/PP1 domains.
 func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
 
-	if (domain.mask & h.domainMask) == 0 {
-		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	if (domain.Mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
 
-	if domain.msrs.Policy == 0 {
-		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	if domain.MSRs.Policy == 0 {
+		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
 	}
 
-	data, err := h.msrDev.Read(domain.msrs.Policy)
+	data, err := h.msrDev.Read(domain.MSRs.Policy)
 	if err != nil {
 		return 0, err
 	}
@@ -134,15 +143,15 @@ func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
 //The value is the amount of time that the domain has been throttled due to RAPL limits. This is not available on PP1.
 func (h RAPLHandler) ReadPerfStatus(domain RAPLDomain) (float64, error) {
 
-	if (domain.mask & h.domainMask) == 0 {
-		return 0, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	if (domain.Mask & h.domainMask) == 0 {
+		return 0, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
 
-	if domain.msrs.PerfStatus == 0 {
-		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	if domain.MSRs.PerfStatus == 0 {
+		return 0, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
 	}
 
-	data, err := h.msrDev.Read(domain.msrs.PerfStatus)
+	data, err := h.msrDev.Read(domain.MSRs.PerfStatus)
 	if err != nil {
 		return 0, err
 	}
@@ -153,15 +162,15 @@ func (h RAPLHandler) ReadPerfStatus(domain RAPLDomain) (float64, error) {
 //ReadPowerInfo returns the MSR_[DOMAIN]_POWER_INFO MSR. This MSR is not available on PP0/PP1
 func (h RAPLHandler) ReadPowerInfo(domain RAPLDomain) (RAPLPowerInfo, error) {
 
-	if (domain.mask & h.domainMask) == 0 {
-		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not exist on system", domain.name)
+	if (domain.Mask & h.domainMask) == 0 {
+		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
 
-	if domain.msrs.PerfStatus == 0 {
-		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.name)
+	if domain.MSRs.PerfStatus == 0 {
+		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not support the POLICY MSR", domain.Name)
 	}
 
-	data, err := h.msrDev.Read(domain.msrs.PowerInfo)
+	data, err := h.msrDev.Read(domain.MSRs.PowerInfo)
 	if err != nil {
 		return RAPLPowerInfo{}, err
 	}
@@ -190,24 +199,24 @@ func getAvailableDomains(cpu int) ([]RAPLDomain, uint) {
 	var availDomains []RAPLDomain
 	var dm uint
 
-	if _, exists := gomsr.ReadMSR(cpu, Package.msrs.EnergyStatus); exists == nil {
+	if _, exists := gomsr.ReadMSR(cpu, Package.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, Package)
-		dm = dm | Package.mask
+		dm = dm | Package.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, DRAM.msrs.EnergyStatus); exists == nil {
+	if _, exists := gomsr.ReadMSR(cpu, DRAM.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, DRAM)
-		dm = dm | DRAM.mask
+		dm = dm | DRAM.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, PP0.msrs.Policy); exists == nil {
+	if _, exists := gomsr.ReadMSR(cpu, PP0.MSRs.Policy); exists == nil {
 		availDomains = append(availDomains, PP0)
-		dm = dm | PP0.mask
+		dm = dm | PP0.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, PP1.msrs.EnergyStatus); exists == nil {
+	if _, exists := gomsr.ReadMSR(cpu, PP1.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, PP1)
-		dm = dm | PP1.mask
+		dm = dm | PP1.Mask
 	}
 
 	return availDomains, dm
