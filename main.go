@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	gorapl "github.com/fearful-symmetry/gorapl/src"
+	"github.com/fearful-symmetry/gorapl/rapl"
 	"github.com/pkg/errors"
 )
 
@@ -43,7 +43,7 @@ func DumpRAPL() error {
 
 	for pkg, cores := range top {
 		fmt.Printf("CPU Package %d\n", pkg)
-		handler, err := gorapl.CreateNewHandler(cores[0], "")
+		handler, err := rapl.CreateNewHandler(cores[0], "")
 		if err != nil {
 			return errors.Wrap(err, "error creating handler")
 		}
@@ -71,7 +71,7 @@ func DumpRAPL() error {
 			fmt.Printf("\t\t\tCumulative Power usage: %f Joules\n", status)
 
 			policy, err := handler.ReadPolicy(domain)
-			if err != nil && err != gorapl.ErrMSRDoesNotExist {
+			if err != nil {
 				fmt.Printf("\t\t\tRAPL Policy not available on Domain %s\n", domain.Name)
 			}
 			if err == nil {
@@ -79,7 +79,7 @@ func DumpRAPL() error {
 			}
 
 			pwrInfo, err := handler.ReadPowerInfo(domain)
-			if err != nil && err != gorapl.ErrMSRDoesNotExist {
+			if err != nil {
 				fmt.Printf("\t\t\tRAPL Power Info not available on Domain %s\n", domain.Name)
 			}
 			if err == nil {

@@ -1,4 +1,4 @@
-package gorapl
+package rapl
 
 import "math"
 

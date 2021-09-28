@@ -1,4 +1,4 @@
-package gorapl
+package rapl
 
 import (
 	"errors"
@@ -26,7 +26,6 @@ var ErrMSRDoesNotExist = errors.New("MSR does not exist on selected Domain")
 
 //CreateNewHandler creates a RAPL register handler for the given CPU
 func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
-
 	domains, mask := getAvailableDomains(cpu)
 	if len(domains) == 0 {
 		return RAPLHandler{}, fmt.Errorf("No RAPL domains available on CPU")
@@ -60,16 +59,12 @@ func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 //The CPU setting determines the logical processor opened via the given fmt pattern.
 //The default pattern is /dev/cpu/%d/msr_safe.
 func NewRAPLWithOptions(options RAPLOptions) (RAPLHandler, error) {
-
 	return CreateNewHandler(options.CPU, options.FmtPattern)
-
 }
 
 //NewRAPL returns a new RAPL handler
 func NewRAPL() (RAPLHandler, error) {
-
 	//TODO: eventually we'll need to handle multiple CPU packages
-
 	return CreateNewHandler(0, "")
 }
 
@@ -81,7 +76,6 @@ func (h RAPLHandler) GetDomains() []RAPLDomain {
 //ReadPowerLimit returns the MSR_[DOMAIN]_POWER_LIMIT MSR
 //This MSR defines power limits for the given domain. Every domain has this MSR
 func (h RAPLHandler) ReadPowerLimit(domain RAPLDomain) (RAPLPowerLimit, error) {
-
 	if (domain.Mask & h.domainMask) == 0 {
 		return RAPLPowerLimit{}, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
@@ -120,7 +114,6 @@ func (h RAPLHandler) ReadEnergyStatus(domain RAPLDomain) (float64, error) {
 //ReadPolicy returns the MSR_[DOMAIN]_POLICY msr. This constists of a single value.
 //The value is a priority that balances energy between the core and uncore devices. It's only available on the PP0/PP1 domains.
 func (h RAPLHandler) ReadPolicy(domain RAPLDomain) (uint64, error) {
-
 	if (domain.Mask & h.domainMask) == 0 {
 		return 0, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
@@ -160,7 +153,6 @@ func (h RAPLHandler) ReadPerfStatus(domain RAPLDomain) (float64, error) {
 
 //ReadPowerInfo returns the MSR_[DOMAIN]_POWER_INFO MSR. This MSR is not available on PP0/PP1
 func (h RAPLHandler) ReadPowerInfo(domain RAPLDomain) (RAPLPowerInfo, error) {
-
 	if (domain.Mask & h.domainMask) == 0 {
 		return RAPLPowerInfo{}, fmt.Errorf("Domain %s does not exist on system", domain.Name)
 	}
@@ -180,7 +172,6 @@ func (h RAPLHandler) ReadPowerInfo(domain RAPLDomain) (RAPLPowerInfo, error) {
 //ReadPowerUnit returns the MSR_RAPL_POWER_UNIT MSR
 //This has no associated domain
 func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
-
 	data, err := h.msrDev.Read(MSRPowerUnit)
 	if err != nil {
 		return RAPLPowerUnit{}, err
@@ -194,7 +185,6 @@ func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
 
 //Borrowed this from the kernel. Traverse over the Energy Status MSRs to see what RAPL domains are available
 func getAvailableDomains(cpu int) ([]RAPLDomain, uint) {
-
 	var availDomains []RAPLDomain
 	var dm uint
 

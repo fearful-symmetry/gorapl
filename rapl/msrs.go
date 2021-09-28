@@ -1,4 +1,4 @@
-package gorapl
+package rapl
 
 //DomainMSRs carries address locations for various MSR registers
 type DomainMSRs struct {
