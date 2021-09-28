@@ -29,6 +29,7 @@ func main() {
 	}
 }
 
+// DumpRAPL Prints detailed RAPL data
 func DumpRAPL() error {
 	top, err := topoPkgCPUMap()
 	if err != nil {
@@ -48,11 +49,25 @@ func DumpRAPL() error {
 		}
 		units := handler.GetPowerUnits()
 		fmt.Printf("\tUnits: %f Watts; %f Joules; %f Seconds\n", units.PowerUnits, units.EnergyStatusUnits, units.TimeUnits)
+
 		domains := handler.GetDomains()
-		fmt.Printf("\tRAPL Domains Available:\n")
+		fmt.Printf("\tRAPL Domains:\n")
 		for _, domain := range domains {
-			fmt.Printf("\t\t%s\n", domain.Name)
+			fmt.Printf("\t\t%s:\n", domain.Name)
+
+			limit, err := handler.ReadPowerLimit(domain)
+			if err != nil {
+				return errors.Wrap(err, "error reading power Limit")
+			}
+			fmt.Printf("\t\t\t Limit 1: %f Watts; Limit 2: %f Watts; locked: %v\n", limit.Limit1.PowerLimit, limit.Limit2.PowerLimit, limit.Lock)
+
+			status, err := handler.ReadEnergyStatus(domain)
+			if err != nil {
+				return errors.Wrap(err, "error reading energy status")
+			}
+			fmt.Printf("Cumulative Power usage: %f Joules\n", status)
 		}
+
 	}
 
 	return nil
