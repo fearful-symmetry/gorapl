@@ -72,7 +72,7 @@ func DumpRAPL() error {
 
 			policy, err := handler.ReadPolicy(domain)
 			if err != nil && err != gorapl.ErrMSRDoesNotExist {
-				return errors.Wrapf(err, "error reading Policy on domain %s", domain.Name)
+				fmt.Printf("\t\t\tRAPL Policy not available on Domain %s\n", domain.Name)
 			}
 			if err == nil {
 				fmt.Printf("\t\t\tRAPL Policy: %d\n", policy)
@@ -80,7 +80,7 @@ func DumpRAPL() error {
 
 			pwrInfo, err := handler.ReadPowerInfo(domain)
 			if err != nil && err != gorapl.ErrMSRDoesNotExist {
-				return errors.Wrapf(err, "error reading PowerInfo on domain %s", domain.Name)
+				fmt.Printf("\t\t\tRAPL Power Info not available on Domain %s\n", domain.Name)
 			}
 			if err == nil {
 				fmt.Printf("\t\t\tPower Info: Thermal Spec: %f; Min: %f; Max: %f; Time Window: %f\n", pwrInfo.ThermalSpecPower, pwrInfo.MinPower, pwrInfo.MaxPower, pwrInfo.MaxTimeWindow)
