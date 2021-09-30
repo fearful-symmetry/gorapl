@@ -15,12 +15,6 @@ type RAPLHandler struct {
 	units        RAPLPowerUnit
 }
 
-//RAPLOptions is used to set options for a new RAPLHandler
-type RAPLOptions struct {
-	FmtPattern string
-	CPU        int
-}
-
 // ErrMSRDoesNotExist is the error for instances when a Domain does not exist on a given RAPL domain
 var ErrMSRDoesNotExist = errors.New("MSR does not exist on selected Domain")
 
@@ -53,19 +47,6 @@ func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 	}
 
 	return handler, nil
-}
-
-//NewRAPLWithOptions returns a new handler with the given options.
-//The CPU setting determines the logical processor opened via the given fmt pattern.
-//The default pattern is /dev/cpu/%d/msr_safe.
-func NewRAPLWithOptions(options RAPLOptions) (RAPLHandler, error) {
-	return CreateNewHandler(options.CPU, options.FmtPattern)
-}
-
-//NewRAPL returns a new RAPL handler
-func NewRAPL() (RAPLHandler, error) {
-	//TODO: eventually we'll need to handle multiple CPU packages
-	return CreateNewHandler(0, "")
 }
 
 // GetDomains returns the list of RAPL domains on the package

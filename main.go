@@ -113,7 +113,7 @@ func topoPkgCPUMap() (map[int][]int, error) {
 	re := regexp.MustCompile("cpu[0-9]+")
 
 	for _, file := range files {
-		if file.IsDir() && re.Match([]byte(file.Name())) {
+		if file.IsDir() && re.MatchString(file.Name()) {
 
 			fullPkg := filepath.Join(sysdir, file.Name(), "/topology/physical_package_id")
 			dat, err := ioutil.ReadFile(fullPkg)
