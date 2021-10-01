@@ -43,7 +43,7 @@ func DumpRAPL() error {
 
 	for pkg, cores := range top {
 		fmt.Printf("CPU Package %d\n", pkg)
-		handler, err := rapl.CreateNewHandler(cores[0], "")
+		handler, err := rapl.CreateNewHandler(cores[0], "/dev/cpu/%d/msr_safe")
 		if err != nil {
 			return errors.Wrap(err, "error creating handler")
 		}

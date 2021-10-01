@@ -1,8 +1,9 @@
 package rapl
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/pkg/errors"
 
 	"github.com/fearful-symmetry/gomsr"
 )
@@ -20,30 +21,31 @@ var ErrMSRDoesNotExist = errors.New("MSR does not exist on selected Domain")
 
 //CreateNewHandler creates a RAPL register handler for the given CPU
 func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
-	domains, mask := getAvailableDomains(cpu)
-	if len(domains) == 0 {
-		return RAPLHandler{}, fmt.Errorf("No RAPL domains available on CPU")
-	}
 
 	var msr gomsr.MSRDev
 	var err error
 	if fmtS == "" {
 		msr, err = gomsr.MSR(cpu)
 		if err != nil {
-			return RAPLHandler{}, err
+			return RAPLHandler{}, errors.Wrap(err, "error creating MSR handler")
 		}
 	} else {
 		msr, err = gomsr.MSRWithLocation(cpu, fmtS)
 		if err != nil {
-			return RAPLHandler{}, err
+			return RAPLHandler{}, errors.Wrapf(err, "error creating MSR handler with location %s", fmtS)
 		}
+	}
+
+	domains, mask := getAvailableDomains(cpu, msr)
+	if len(domains) == 0 {
+		return RAPLHandler{}, fmt.Errorf("No RAPL domains available on CPU")
 	}
 
 	handler := RAPLHandler{availDomains: domains, domainMask: mask, msrDev: msr}
 
 	handler.units, err = handler.ReadPowerUnit()
 	if err != nil {
-		return RAPLHandler{}, err
+		return RAPLHandler{}, errors.Wrapf(err, "error reading power units")
 	}
 
 	return handler, nil
@@ -165,26 +167,26 @@ func (h RAPLHandler) ReadPowerUnit() (RAPLPowerUnit, error) {
 // helper functions
 
 //Borrowed this from the kernel. Traverse over the Energy Status MSRs to see what RAPL domains are available
-func getAvailableDomains(cpu int) ([]RAPLDomain, uint) {
+func getAvailableDomains(cpu int, msr gomsr.MSRDev) ([]RAPLDomain, uint) {
 	var availDomains []RAPLDomain
 	var dm uint
 
-	if _, exists := gomsr.ReadMSR(cpu, Package.MSRs.EnergyStatus); exists == nil {
+	if _, exists := msr.Read(Package.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, Package)
 		dm = dm | Package.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, DRAM.MSRs.EnergyStatus); exists == nil {
+	if _, exists := msr.Read(DRAM.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, DRAM)
 		dm = dm | DRAM.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, PP0.MSRs.Policy); exists == nil {
+	if _, exists := msr.Read(PP0.MSRs.Policy); exists == nil {
 		availDomains = append(availDomains, PP0)
 		dm = dm | PP0.Mask
 	}
 
-	if _, exists := gomsr.ReadMSR(cpu, PP1.MSRs.EnergyStatus); exists == nil {
+	if _, exists := msr.Read(PP1.MSRs.EnergyStatus); exists == nil {
 		availDomains = append(availDomains, PP1)
 		dm = dm | PP1.Mask
 	}
