@@ -1,9 +1,8 @@
 package rapl
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 
 	"github.com/fearful-symmetry/gomsr"
 )
@@ -27,12 +26,12 @@ func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 	if fmtS == "" {
 		msr, err = gomsr.MSR(cpu)
 		if err != nil {
-			return RAPLHandler{}, errors.Wrap(err, "error creating MSR handler")
+			return RAPLHandler{}, fmt.Errorf("error creating MSR handler: %w", err)
 		}
 	} else {
 		msr, err = gomsr.MSRWithLocation(cpu, fmtS)
 		if err != nil {
-			return RAPLHandler{}, errors.Wrapf(err, "error creating MSR handler with location %s", fmtS)
+			return RAPLHandler{}, fmt.Errorf("error creating MSR handler with location %s: %w", fmtS, err)
 		}
 	}
 
@@ -45,7 +44,7 @@ func CreateNewHandler(cpu int, fmtS string) (RAPLHandler, error) {
 
 	handler.units, err = handler.ReadPowerUnit()
 	if err != nil {
-		return RAPLHandler{}, errors.Wrapf(err, "error reading power units")
+		return RAPLHandler{}, fmt.Errorf("error reading power units: %w", err)
 	}
 
 	return handler, nil

@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/fearful-symmetry/gorapl/rapl"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -33,7 +32,7 @@ func main() {
 func DumpRAPL() error {
 	top, err := topoPkgCPUMap()
 	if err != nil {
-		return errors.Wrap(err, "error fetching CPU topology")
+		return fmt.Errorf("error fetching CPU topology: %w", err)
 	}
 
 	fmt.Printf("Topology:\n")
@@ -45,11 +44,11 @@ func DumpRAPL() error {
 		fmt.Printf("CPU Package %d\n", pkg)
 		handler, err := rapl.CreateNewHandler(cores[0], "/dev/cpu/%d/msr_safe")
 		if err != nil {
-			return errors.Wrap(err, "error creating handler")
+			return fmt.Errorf("error creating handler: %w", err)
 		}
 		units, err := handler.ReadPowerUnit()
 		if err != nil {
-			return errors.Wrap(err, "error reading power units")
+			return fmt.Errorf("error reading power units: %w", err)
 		}
 		fmt.Printf("\tUnits: %f Watts; %f Joules; %f Seconds\n", units.PowerUnits, units.EnergyStatusUnits, units.TimeUnits)
 
@@ -60,13 +59,13 @@ func DumpRAPL() error {
 
 			limit, err := handler.ReadPowerLimit(domain)
 			if err != nil {
-				return errors.Wrapf(err, "error reading Power Limit on domain %s", domain.Name)
+				return fmt.Errorf("error reading Power Limit on domain %s: %w", domain.Name, err)
 			}
 			fmt.Printf("\t\t\tLimit 1: %f Watts; Limit 2: %f Watts; locked: %v\n", limit.Limit1.PowerLimit, limit.Limit2.PowerLimit, limit.Lock)
 
 			status, err := handler.ReadEnergyStatus(domain)
 			if err != nil {
-				return errors.Wrapf(err, "error reading energy status on domain %s", domain.Name)
+				return fmt.Errorf("error reading energy status on domain %s: %w", domain.Name, err)
 			}
 			fmt.Printf("\t\t\tCumulative Power usage: %f Joules\n", status)
 
@@ -118,16 +117,16 @@ func topoPkgCPUMap() (map[int][]int, error) {
 			fullPkg := filepath.Join(sysdir, file.Name(), "/topology/physical_package_id")
 			dat, err := ioutil.ReadFile(fullPkg)
 			if err != nil {
-				return nil, errors.Wrapf(err, "error reading file %s", fullPkg)
+				return nil, fmt.Errorf("error reading file %s: %w", fullPkg, err)
 			}
 			phys, err := strconv.ParseInt(strings.TrimSpace(string(dat)), 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "error parsing value from %s", fullPkg)
+				return nil, fmt.Errorf("error parsing value from %s: %w", fullPkg, err)
 			}
 			var cpuCore int
 			_, err = fmt.Sscanf(file.Name(), "cpu%d", &cpuCore)
 			if err != nil {
-				return nil, errors.Wrapf(err, "error fetching CPU core value from string %s", file.Name())
+				return nil, fmt.Errorf("error fetching CPU core value from string %s: %w", file.Name(), err)
 			}
 			pkgList, ok := cpuMap[int(phys)]
 			if !ok {
